@@ -77,11 +77,12 @@ void conn_pool_release(ConnPool *pool, PGconn *conn)
         return;
     }
 
-    /* If the connection is in a transaction, reset it */
+    /* If the connection is in a transaction, close it rather than
+     * issuing a blocking DISCARD ALL that could hang the event loop. */
     PGTransactionStatusType txn = PQtransactionStatus(conn);
     if (txn != PQTRANS_IDLE) {
-        PGresult *res = PQexec(conn, "DISCARD ALL");
-        PQclear(res);
+        PQfinish(conn);
+        return;
     }
 
     /* Return to pool if there's room */

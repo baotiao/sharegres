@@ -18,6 +18,7 @@ typedef struct {
     Shard         **target_shards;   /* array of target shards (owned by shard_map) */
     int             target_count;
     TableRule      *rule;            /* matched table rule (or NULL) */
+    Shard          *_single_shard;   /* inline storage for ROUTE_SINGLE (avoids static) */
 } RouteDecision;
 
 /*

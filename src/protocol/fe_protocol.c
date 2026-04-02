@@ -402,7 +402,7 @@ int fe_protocol_process(ClientSession *session)
             memcpy(&msg_len, rb->data, 4);
             msg_len = ntohl(msg_len);
 
-            if (msg_len < 4 || msg_len > 10000) {
+            if (msg_len < 4 || msg_len > 65535) {
                 log_error("invalid startup message length: %u", msg_len);
                 return -1;
             }

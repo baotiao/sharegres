@@ -74,10 +74,8 @@ void router_decide(ShardMap *map, ParseResult *parsed, RouteDecision *decision)
 
         if (target) {
             decision->type = ROUTE_SINGLE;
-            /* Store single shard in a static array slot */
-            static Shard *single_target[1];
-            single_target[0] = target;
-            decision->target_shards = single_target;
+            decision->_single_shard = target;
+            decision->target_shards = &decision->_single_shard;
             decision->target_count = 1;
             log_debug("router: table '%s' key=%s -> shard '%s'",
                       parsed->table_name,
