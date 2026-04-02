@@ -110,27 +110,36 @@ static void on_accept(EventHandler *handler, uint32_t events)
 
 static void print_usage(const char *prog)
 {
-    fprintf(stderr, "Usage: %s [-c config_file] [-l listen_port] [-b backend_conninfo]\n", prog);
+    fprintf(stderr, "Usage: %s [-d basedir] [-c config_file] [-l port] [-b conninfo]\n", prog);
     fprintf(stderr, "\nOptions:\n");
-    fprintf(stderr, "  -c FILE    Configuration file path\n");
+    fprintf(stderr, "  -d DIR     Base directory (loads DIR/sharegres.cnf)\n");
+    fprintf(stderr, "  -c FILE    Configuration file path (overrides -d)\n");
     fprintf(stderr, "  -l PORT    Listen port (default: 15432)\n");
-    fprintf(stderr, "  -b CONN    Backend connection info (default: host=127.0.0.1 port=5432 dbname=postgres)\n");
-    fprintf(stderr, "  -d         Debug log level\n");
+    fprintf(stderr, "  -b CONN    Backend connection info\n");
+    fprintf(stderr, "  -D         Debug log level\n");
     fprintf(stderr, "  -h         Show this help\n");
+    fprintf(stderr, "\nExamples:\n");
+    fprintf(stderr, "  %s -d ./conf\n", prog);
+    fprintf(stderr, "  %s -c /etc/sharegres/sharegres.cnf\n", prog);
+    fprintf(stderr, "  %s -l 15432 -b \"host=127.0.0.1 port=5432 dbname=postgres\"\n", prog);
 }
 
 int main(int argc, char *argv[])
 {
     const char *config_file = NULL;
+    const char *basedir = NULL;
     const char *cli_backend = NULL;
     int cli_port = 0;
     bool debug = false;
 
     int opt;
-    while ((opt = getopt(argc, argv, "c:l:b:dh")) != -1) {
+    while ((opt = getopt(argc, argv, "c:d:l:b:Dh")) != -1) {
         switch (opt) {
         case 'c':
             config_file = optarg;
+            break;
+        case 'd':
+            basedir = optarg;
             break;
         case 'l':
             cli_port = atoi(optarg);
@@ -138,7 +147,7 @@ int main(int argc, char *argv[])
         case 'b':
             cli_backend = optarg;
             break;
-        case 'd':
+        case 'D':
             debug = true;
             break;
         case 'h':
@@ -150,9 +159,19 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* Load config */
+    /* Resolve config file path */
+    char config_path[1024];
     if (config_file) {
-        g_cfg = config_load(config_file);
+        snprintf(config_path, sizeof(config_path), "%s", config_file);
+    } else if (basedir) {
+        snprintf(config_path, sizeof(config_path), "%s/sharegres.cnf", basedir);
+    } else {
+        config_path[0] = '\0';
+    }
+
+    /* Load config */
+    if (config_path[0]) {
+        g_cfg = config_load(config_path);
     } else {
         g_cfg = config_default();
     }
