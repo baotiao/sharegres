@@ -168,8 +168,8 @@ ShagresCfg* config_load(const char *path)
             if (idx < 0) {
                 idx = tmp_rule_count++;
                 memset(&tmp_rules[idx], 0, sizeof(TmpTableRule));
-                strncpy(tmp_rules[idx].table_name, current_section_arg,
-                        sizeof(tmp_rules[idx].table_name) - 1);
+                snprintf(tmp_rules[idx].table_name, sizeof(tmp_rules[idx].table_name),
+                         "%s", current_section_arg);
             }
 
             if (strcmp(key, "shard_column") == 0)
