@@ -1,0 +1,14 @@
+build/
+*.o
+*.a
+*.so
+*.log
+*.pid
+third_party/libpg_query/build/
+third_party/libpg_query/*.a
+third_party/libpg_query/*.o
+third_party/libpg_query/tmp/
+third_party/libpg_query/test/parse
+third_party/libpg_query/test/parse_plpgsql
+third_party/libpg_query/test/split
+third_party/libpg_query/test/*.actual.*

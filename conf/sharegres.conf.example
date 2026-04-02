@@ -1,0 +1,39 @@
+[global]
+listen_addr = 0.0.0.0
+listen_port = 15432
+max_clients = 1024
+log_level = info
+
+[auth]
+method = trust
+
+[pool]
+default_pool_size = 20
+max_pool_size = 100
+idle_timeout = 300
+
+# Backend (single backend for Phase 1)
+[backend]
+conninfo = host=127.0.0.1 port=5432 dbname=postgres
+
+# Shard definitions
+[shard:shard_0]
+conninfo = host=127.0.0.1 port=5432 dbname=postgres
+key_range_start = 0
+key_range_end = 1000000
+
+[shard:shard_1]
+conninfo = host=127.0.0.1 port=5433 dbname=postgres
+key_range_start = 1000000
+key_range_end = 2000000
+
+# Table sharding rules
+[table:orders]
+shard_column = user_id
+method = range
+shards = shard_0, shard_1
+
+[table:users]
+shard_column = id
+method = range
+shards = shard_0, shard_1
