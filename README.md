@@ -51,40 +51,34 @@ Inspired by [multigres](https://github.com/multigres/multigres) (Go-based PG sha
 ### Build
 
 ```bash
-# Dependencies: libpq (postgresql-devel), cmake, gcc
-# libpg_query is included as a vendored dependency
-
-# Build libpg_query first
-cd third_party/libpg_query && make -j$(nproc) && cd ../..
-
-# Build sharegres
-mkdir -p build && cd build
-cmake ..
-make -j$(nproc)
+# Dependencies: libpq (postgresql-devel), gcc, make
+make
 ```
 
-### Run (single backend proxy)
+### Run
 
 ```bash
-# Proxy all queries to a single PG instance
-./build/sharegres -l 15432 -b "host=127.0.0.1 port=5432 dbname=postgres"
+# Load config from directory (reads conf/sharegres.cnf)
+./bin/sharegres -d ./conf
+
+# Or specify config file directly
+./bin/sharegres -c /path/to/sharegres.cnf
+
+# Or quick start with no config
+./bin/sharegres -l 15432 -b "host=127.0.0.1 port=5432 dbname=postgres"
 
 # Connect through the proxy
 psql -h 127.0.0.1 -p 15432 -d postgres
 ```
 
-### Run (sharded cluster)
+### Configuration
 
-Create a config file:
+Edit `conf/sharegres.cnf` (see [conf/sharegres.cnf](conf/sharegres.cnf) for a full example):
 
 ```ini
 [global]
 listen_addr = 0.0.0.0
 listen_port = 15432
-log_level = info
-
-[pool]
-default_pool_size = 10
 
 [backend]
 conninfo = host=127.0.0.1 port=5432 dbname=postgres
@@ -103,15 +97,6 @@ key_range_end = 10000000
 shard_column = user_id
 method = range
 shards = shard_0, shard_1
-
-[table:users]
-shard_column = id
-method = range
-shards = shard_0, shard_1
-```
-
-```bash
-./build/sharegres -c sharegres.conf
 ```
 
 ### Cluster management script

@@ -12,7 +12,7 @@ default_pool_size = 20
 max_pool_size = 100
 idle_timeout = 300
 
-# Backend (single backend for Phase 1)
+# Default backend (for unsharded tables)
 [backend]
 conninfo = host=127.0.0.1 port=5432 dbname=postgres
 
